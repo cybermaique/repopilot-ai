@@ -48,6 +48,10 @@ export class WorkerService implements OnApplicationBootstrap, OnModuleDestroy {
         if (this.stopping) break;
         const job = await this.jobs.claim();
         if (job) {
+          if (this.stopping) {
+            await this.jobs.fail(job);
+            break;
+          }
           await this.process(job);
           continue;
         }

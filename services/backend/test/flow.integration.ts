@@ -5,7 +5,14 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import request from 'supertest';
-import type { INestApplication } from '@nestjs/common';
+import {
+  Module,
+  Injectable,
+  type OnModuleDestroy,
+  type INestApplication,
+} from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { DomainModule } from '../src/modules.js';
 import { createApi } from '../src/bootstrap.js';
 import { CONFIG, LOCAL_WORKSPACE, type AppConfig } from '../src/config.js';
 import { Database } from '../src/db/database.js';
@@ -86,6 +93,24 @@ async function indexFixture() {
 }
 
 describe('PostgreSQL-backed phase 1', () => {
+  test('database remains available during module shutdown so workers can persist release', async () => {
+    let persisted = false;
+    @Injectable()
+    class ShutdownProbe implements OnModuleDestroy {
+      constructor(private readonly database: Database) {}
+      async onModuleDestroy() {
+        await this.database.pool.query('SELECT 1');
+        persisted = true;
+      }
+    }
+    @Module({ imports: [DomainModule], providers: [ShutdownProbe] })
+    class ShutdownModule {}
+    const context = await NestFactory.createApplicationContext(ShutdownModule, {
+      logger: false,
+    });
+    await context.close();
+    expect(persisted).toBe(true);
+  });
   test('completion waiting for a lock observes cancellation committed by its owner', async () => {
     const run = await runs.create(LOCAL_WORKSPACE, repositoryId, 'index');
     const job = (await jobs.claim())!;

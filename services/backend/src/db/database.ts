@@ -1,11 +1,11 @@
-import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool, PoolClient } from 'pg';
 import { CONFIG, type AppConfig } from '../config.js';
 import * as schema from './schema.js';
 
 @Injectable()
-export class Database implements OnModuleDestroy {
+export class Database implements OnApplicationShutdown {
   readonly pool: Pool;
   readonly orm;
   constructor(@Inject(CONFIG) config: AppConfig) {
@@ -34,7 +34,8 @@ export class Database implements OnModuleDestroy {
       client.release();
     }
   }
-  async onModuleDestroy() {
+  // Workers/controllers finish their onModuleDestroy hooks before the pool closes.
+  async onApplicationShutdown() {
     await this.pool.end();
   }
 }
