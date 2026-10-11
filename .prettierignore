@@ -1,0 +1,11 @@
+pnpm-lock.yaml
+packages/api-client/src/schema.d.ts
+packages/api-client/openapi.json
+**/next-env.d.ts
+services/backend/drizzle/meta/
+node_modules/
+dist/
+.next/
+coverage/
+test-results/
+playwright-report/

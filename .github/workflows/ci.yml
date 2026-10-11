@@ -1,0 +1,60 @@
+name: Deterministic demo checks
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.1-pg17
+        env:
+          POSTGRES_USER: repopilot
+          POSTGRES_PASSWORD: repopilot_local
+          POSTGRES_DB: repopilot
+        ports: ['55432:5432']
+        options: >-
+          --health-cmd "pg_isready -U repopilot -d repopilot"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      NODE_ENV: development
+      DEV_AUTH: 'true'
+      DATABASE_URL: postgresql://repopilot:repopilot_local@127.0.0.1:55432/repopilot
+      TEST_DATABASE_URL: postgresql://repopilot:repopilot_local@127.0.0.1:55432/repopilot_test
+      NEXT_TELEMETRY_DISABLED: '1'
+      LOCAL_ORIGIN: http://localhost:8088
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.19.0 }
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .node-version, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm contract:generate
+      - run: git diff --exit-code -- packages/api-client
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm db:test:create && pnpm db:migrate && pnpm seed
+      - run: pnpm test:integration
+      - run: pnpm eval
+      - run: pnpm build
+        env:
+          NODE_ENV: production
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            playwright-report/

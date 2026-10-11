@@ -1,0 +1,86 @@
+[
+  {
+    "id": "locate-expiry",
+    "question": "Where is isTokenExpired defined?",
+    "evidence": "supported",
+    "expectedPaths": ["src/session.ts"],
+    "note": "Function checks now >= expiresAt; source must contain the definition."
+  },
+  {
+    "id": "renewal-bug",
+    "question": "Why does renewSession keep the token expired?",
+    "evidence": "supported",
+    "expectedPaths": ["src/session.ts", "docs/token-renewal.md"],
+    "note": "Known bug copies the old expiration. Either code or investigation documentation is valid evidence."
+  },
+  {
+    "id": "fix-plan",
+    "question": "What is the proposed fix plan for renewSession?",
+    "evidence": "supported",
+    "expectedPaths": ["docs/token-renewal.md"],
+    "note": "Documented plan, not an executed correction."
+  },
+  {
+    "id": "create-session",
+    "question": "How does createSession calculate expiresAt?",
+    "evidence": "supported",
+    "expectedPaths": ["src/session.ts", "docs/token-renewal.md"],
+    "note": "now + expiresInSeconds * 1000."
+  },
+  {
+    "id": "request-header",
+    "question": "What does authenticatedRequest return?",
+    "evidence": "supported",
+    "expectedPaths": ["src/client.ts"],
+    "note": "Returns authorization and the active session."
+  },
+  {
+    "id": "retry-path",
+    "question": "Show src/retry.ts retryRequest",
+    "evidence": "supported",
+    "expectedPaths": ["src/retry.ts"],
+    "note": "Exact path and identifier retrieval."
+  },
+  {
+    "id": "retry-count",
+    "question": "How many maxAttempts does retryRequest use?",
+    "evidence": "supported",
+    "expectedPaths": ["src/retry.ts"],
+    "note": "Default maximum three attempts, no delay."
+  },
+  {
+    "id": "time-units",
+    "question": "What are the Unix timestamps in milliseconds?",
+    "evidence": "supported",
+    "expectedPaths": ["docs/token-renewal.md"],
+    "note": "now and expiresAt are Unix milliseconds; lifetime is seconds."
+  },
+  {
+    "id": "refresh-token",
+    "question": "Does renewSession preserve refreshToken?",
+    "evidence": "supported",
+    "expectedPaths": ["src/session.ts", "docs/token-renewal.md"],
+    "note": "Renewal uses returned accessToken and refreshToken."
+  },
+  {
+    "id": "unknown-invoices",
+    "question": "How are invoices reconciled?",
+    "evidence": "insufficient",
+    "expectedPaths": [],
+    "note": "No invoice implementation in fixture."
+  },
+  {
+    "id": "unknown-telemetry",
+    "question": "How does lunar telemetry work?",
+    "evidence": "insufficient",
+    "expectedPaths": [],
+    "note": "No telemetry protocol in fixture."
+  },
+  {
+    "id": "unknown-encryption",
+    "question": "Explain elliptic curve encryption settings",
+    "evidence": "insufficient",
+    "expectedPaths": [],
+    "note": "No cryptographic configuration in fixture."
+  }
+]

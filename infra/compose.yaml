@@ -1,0 +1,70 @@
+name: repopilot-ai
+services:
+  db:
+    image: pgvector/pgvector:0.8.1-pg17
+    environment:
+      POSTGRES_USER: repopilot
+      POSTGRES_PASSWORD: repopilot_local
+      POSTGRES_DB: repopilot
+    ports: ['127.0.0.1:55432:5432']
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/10-test-database.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U repopilot -d repopilot']
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  migrate:
+    build: { context: .., dockerfile: infra/Dockerfile }
+    image: repopilot-ai:local
+    command: ['node', 'services/backend/dist/db/migrate.js']
+    environment: &backend-env
+      NODE_ENV: development
+      DEV_AUTH: 'true'
+      DATABASE_URL: postgresql://repopilot:repopilot_local@db:5432/repopilot
+      API_HOST: 0.0.0.0
+      LOCAL_ORIGIN: http://localhost:8088
+    depends_on:
+      db: { condition: service_healthy }
+  api:
+    image: repopilot-ai:local
+    command: ['node', 'services/backend/dist/main.js']
+    environment: *backend-env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:4100/api/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+  worker:
+    image: repopilot-ai:local
+    command: ['node', 'services/backend/dist/worker.js']
+    environment: *backend-env
+    stop_grace_period: 20s
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+  web:
+    image: repopilot-ai:local
+    command: ['node', 'scripts/start-web.mjs']
+    environment: { NEXT_TELEMETRY_DISABLED: '1' }
+    depends_on:
+      api: { condition: service_healthy }
+  gateway:
+    image: repopilot-ai:local
+    command: ['node', 'scripts/gateway.mjs']
+    environment:
+      GATEWAY_HOST: 0.0.0.0
+      API_TARGET: http://api:4100
+      WEB_TARGET: http://web:3100
+    ports: ['127.0.0.1:8088:8088']
+    depends_on: [api, web]
+volumes:
+  pgdata:
