@@ -47,6 +47,8 @@ jobs:
       - run: pnpm test:integration
       - run: pnpm eval
       - run: pnpm build
+        env:
+          NODE_ENV: production
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - uses: actions/upload-artifact@v4

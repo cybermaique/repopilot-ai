@@ -16,6 +16,7 @@
 
 ### Fixed
 
+- CI builds explicitly use the production Node environment; the demo API and worker retain their development environment for integration and browser checks.
 - Completion now reads cancellation and checks the lease after acquiring the job lock, preventing a stale pre-lock read from overriding a committed cancellation.
 - Database pool closure follows worker/controller module shutdown, preserving their ability to persist cancellation/retry; workers stop before processing a claim obtained during shutdown.
 - Browser checks wait for the independently started API and initial workspace loading, preventing startup timing from causing false failures.
@@ -27,4 +28,4 @@
 - Small literal-vocabulary fixture evaluations are not LLM quality or BM25 measurements. No fabricated usage/cost metrics.
 - Latest 50 runs in UI, one job per worker, bounded local ingestion/queue/streams; no production retention or public-demo protections yet.
 - ESLint 9 and some transitive tooling are deprecated; pinned for compatible Next.js plugin peers. Gateway's upstream http-proxy emits a Node deprecation notice. See docs/versions.md.
-- No push, remote PR/CI execution, merge, release publication or Git release tag performed.
+- Release awaits pull request review, passing remote checks and validated integration into master; no merge, release publication or Git release tag performed.
