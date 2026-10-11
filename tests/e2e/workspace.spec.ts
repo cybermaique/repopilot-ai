@@ -1,5 +1,14 @@
 import { test, expect } from '@playwright/test';
 
+test.beforeEach(async ({ request }) => {
+  // HTML readiness alone can precede the independent Nest API startup.
+  await expect
+    .poll(async () => (await request.get('/api/health/ready')).status(), {
+      timeout: 30000,
+    })
+    .toBe(200);
+});
+
 test('index fixture → ask → inspect real source → reopen persistent history', async ({
   page,
 }, testInfo) => {
@@ -7,6 +16,7 @@ test('index fixture → ask → inspect real source → reopen persistent histor
   await expect(
     page.getByRole('heading', { name: 'Answers grounded in code.' }),
   ).toBeVisible();
+  await expect(page.getByText('Loading local workspace…')).toHaveCount(0);
   const register = page.getByRole('button', {
     name: 'Register sample repository',
     exact: true,
