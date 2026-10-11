@@ -1,6 +1,6 @@
 {
   "name": "repopilot-ai",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@10.19.0",
   "engines": {

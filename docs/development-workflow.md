@@ -17,6 +17,8 @@ gh pr create --base master --head feat/bootstrap-v0.1.0 --title "feat: bootstrap
 
 Prepare the PR body using `.github/pull_request_template.md`, including actual validation and limitations. Review and required CI checks precede integration into master. CI runs on PRs targeting master and pushes to master with only the demo provider and local database.
 
+The remote had no branch refs during bootstrap (`git ls-remote --heads origin`). Before the first PR, a later authorized publication must establish the initial main branch with `git push origin master`, then push the feature branch. The local master points only to the initial empty commit; this publishes the base and does not merge the implementation. If remote history appears meanwhile, inspect it and adapt without overwriting it. No push was executed in bootstrap.
+
 ## Product version
 
 Use a coordinated product version across private workspace packages. Start bootstrap at `0.0.0`. Target `v0.1.0` for phases 0 and 1. Prepare `0.1.0` only when acceptance is satisfied; do not mark the increment complete while critical verification is pending. Update `CHANGELOG.md` with real changes and limitations. No package publication or complex release automation.

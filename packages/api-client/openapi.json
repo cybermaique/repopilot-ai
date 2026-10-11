@@ -411,7 +411,7 @@
   "info": {
     "title": "RepoPilot AI local demo",
     "description": "Fixed local workspace. Deterministic Demo provider only; production startup is refused.",
-    "version": "0.0.0",
+    "version": "0.1.0",
     "contact": {}
   },
   "tags": [],
