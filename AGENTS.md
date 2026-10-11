@@ -20,6 +20,6 @@ Implement phases 0 and 1 first. Clearly label the deterministic **Demo provider*
 
 ## Validation
 
-Use `pnpm doctor`, `pnpm setup`, `pnpm dev`, `pnpm db:migrate`, `pnpm seed`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm eval`, `pnpm build`. See `docs/progress.md` for which commands have actually passed. Do not claim unexecuted checks.
+Use `pnpm run doctor`, `pnpm run setup`, `pnpm dev`, `pnpm db:migrate`, `pnpm seed`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:integration`, `pnpm test:e2e`, `pnpm eval`, `pnpm build`. `run` is required for doctor/setup because pnpm has built-in commands with those names. See `docs/progress.md` for which commands have actually passed. Do not claim unexecuted checks.
 
 Contract changes: regenerate with `pnpm contract:generate` and check generated diff. Migrations execute as a dedicated command, not in API/worker startup. Integration tests require a separate PostgreSQL test database. Demo auth is fixed local identity only; production must refuse startup. No Markdown HTML rendering. All database resource access includes workspace scope.

@@ -1,0 +1,41 @@
+{
+  "name": "repopilot-ai",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.19.0",
+  "engines": {
+    "node": ">=20.20.0"
+  },
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "setup": "node scripts/setup.mjs",
+    "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
+    "start:local": "node --env-file-if-exists=.env scripts/start-local.mjs",
+    "db:test:create": "node --env-file-if-exists=.env scripts/create-test-db.mjs",
+    "db:migrate": "pnpm --filter @repopilot/backend db:migrate",
+    "db:generate": "pnpm --filter @repopilot/backend db:generate",
+    "seed": "pnpm --filter @repopilot/backend seed",
+    "contract:generate": "pnpm --filter @repopilot/backend build && pnpm --filter @repopilot/backend openapi && pnpm --filter @repopilot/api-client generate",
+    "lint": "eslint . --max-warnings 0 && prettier . --check",
+    "format": "prettier . --write",
+    "typecheck": "pnpm --filter @repopilot/api-client typecheck && pnpm --filter @repopilot/backend typecheck && pnpm --filter @repopilot/web typecheck",
+    "test": "pnpm --filter @repopilot/backend test && pnpm --filter @repopilot/web test",
+    "test:integration": "pnpm --filter @repopilot/backend test:integration",
+    "test:e2e": "playwright test",
+    "eval": "pnpm --filter @repopilot/backend eval",
+    "build": "pnpm --filter @repopilot/api-client build && pnpm --filter @repopilot/backend build && pnpm --filter @repopilot/web build"
+  },
+  "devDependencies": {
+    "node": "24.21.0",
+    "typescript": "5.9.3",
+    "@types/node": "24.10.0",
+    "eslint": "9.39.1",
+    "typescript-eslint": "8.71.1",
+    "eslint-config-next": "16.4.0",
+    "prettier": "3.9.10",
+    "@playwright/test": "1.64.0"
+  },
+  "dependencies": {
+    "http-proxy": "1.18.1"
+  }
+}
